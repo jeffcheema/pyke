@@ -1,0 +1,21 @@
+{
+  "name": "pyke",
+  "version": "0.0.0",
+  "description": "Musik via yt boi ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeffcheema/pyke.git"
+  },
+  "author": "Jeff Cheema",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/jeffcheema/pyke/issues"
+  },
+  "dependencies": {
+    "express": "~4.14.1"
+  }
+}
