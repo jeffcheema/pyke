@@ -1,0 +1,45 @@
+<link rel="import" href="imports.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<dom-module id="add-playlist">
+  <template>
+    <style>
+      :host {
+
+      }
+
+          </style>
+
+<paper-button raised on-tap="add">
+  Add to Playlist.
+</paper-button>
+  </template>
+  <script>
+     Polymer({
+       is: 'add-playlist',
+       properties:{
+title:String,
+file:String,
+       },
+       ready:function(){
+         console.log(document.querySelector("fint-app").userInfo);
+       },
+       add:function(){
+
+         var title = this.title;
+         var file = this.file;
+          var userInfo = document.querySelector("fint-app").userInfo;
+          document.querySelector("fint-app").refreshPL()
+         ajaxUrl = firebase.database().ref('users/' + userInfo.uid) + "/.json";
+       dbUser = (function() { var result; $.ajax({ type:'GET', url:ajaxUrl, dataType:'json', async:false, success:function(data){ result = data; } }); return result; })();
+var length = Object.keys(dbUser.playlist).length;
+         firebase.database().ref('users/' + userInfo.uid + "/playlist/" + length ).set({
+            title: this.title,
+            file:this.file
+
+          });
+
+document.querySelector("fint-app").refreshPL()
+       },
+     });
+   </script>
+ </dom-module>

@@ -15,7 +15,7 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(express.static('public'));
+app.use(express.static('static'));
 var escapeShell = function(cmd) {
   return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
 };

@@ -1,0 +1,64 @@
+<link rel="import" href="imports.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<dom-module id="add-offline">
+  <template>
+    <style>
+      :host {
+
+      }
+
+          </style>
+
+
+<paper-button raised on-tap="add">
+
+  Save Offline.
+
+
+</paper-button>
+  </template>
+  <script>
+     Polymer({
+       is: 'add-offline',
+       properties:{
+title:String,
+file:String,
+       },
+       ready:function(){
+         console.log(document.querySelector("fint-app").userInfo);
+       },
+  add:function(){
+    String.prototype.replaceAll = function(search, replacement) {
+        var target = this;
+        return target.split(search).join(replacement);
+    };
+if (localStorage.offline == null){
+localStorage.setItem("offline", "[]");
+}
+if (localStorage.offline == undefined){
+localStorage.setItem("offline", "[]");
+}
+var pushValue = {"title":this.title,"file":this.file};
+console.log(pushValue)
+var str = JSON.stringify(pushValue);
+
+  g =JSON.parse(localStorage.offline);
+  g.push(pushValue);
+  localStorage.offline = JSON.stringify(g);
+  document.querySelector("fint-app").offlinePlaylist = JSON.parse(localStorage.offline);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', this.file, true);
+
+  xhr.onload = function () {
+    console.log("cached")
+  };
+
+  xhr.send(null);
+
+
+
+       },
+     });
+   </script>
+ </dom-module>

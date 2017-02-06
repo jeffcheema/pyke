@@ -1,0 +1,120 @@
+
+<dom-module id="user-playlist">
+  <template>
+
+          <div id="userPlaylist">
+          <template class="center "is="dom-repeat" items="{{playlist}}">
+        <div id="wowomg">
+              <span id="list" class="center">
+
+
+          <paper-card style="width:100%;"class="center" heading="[[item.title]] " alt="[[item.title]] " class="white">
+
+            <div class="card-actions">
+          <song-play vid="[[item.file]]">
+          </song-play>
+        <li>
+          <a  id="work" href="[[item.file]]">
+
+
+        <paper-button raised>Play</paper-button>
+
+
+        </a>
+        </li>
+
+
+        <br>
+
+
+
+
+            </div>
+          </span>
+          </paper-card>
+        <br>
+        <br>
+        </div>
+          </template>
+          <paper-material id="shibushi" elevation="-1">
+        <paper-toolbar   style="color:black; background-color: white; width:100%;" id="footer">
+
+          <audio id="uAudio" preload="auto" tabindex="0" controls="" type="audio/mpeg">
+      <source type="audio/mp3" src="">
+      Sorry, your browser does not support HTML5 audio.
+      </audio>
+        </paper-toolbar>
+      </paper-material>
+    </div>
+  </template>
+  <script>
+     Polymer({
+       is: 'user-playlist',
+       properties:{
+playlist:{
+  type:Object,
+
+},
+       },
+       ready:function(){
+      //wait for audio to render then run init function...
+      var rec = function() {
+        setTimeout(function() {
+          if ($('#uAudio').length > 0) {
+          document.querySelector("user-playlist").init();
+          } else
+              rec();
+        }, 10);
+      }
+      rec();
+
+       },
+       pChange:function(){
+         document.querySelector("user-playlist").init();
+         console.log("playlist changed");
+       },
+       init:function(){
+         var audio;
+         var playlist;
+         var tracks;
+         var current;
+console.log("initing user-playlist");
+
+             current = 0;
+             audio = $('#uAudio');
+             playlist = $('#userPlaylist');
+             tracks = playlist.find('#list a');
+             console.log(tracks);
+             len = tracks.length - 1;
+             audio[0].volume = 1;
+             audio[0].play();
+             playlist.find('a').click(function(e){
+                 e.preventDefault();
+                 link = $(this);
+                 current = link.parent().index();
+                 run(link, audio[0]);
+
+             });
+             audio[0].addEventListener('ended',function(e){
+                 current++;
+                 if(current == len){
+                     current = 0;
+                     link = playlist.find('a')[0];
+                 }else{
+                     link = playlist.find('a')[current];
+                 }
+                 run($(link),audio[0]);
+             });
+
+         function run(link, player){
+                 player.src = link.attr('href');
+                 par = link.parent();
+                 par.addClass('active').siblings().removeClass('active');
+                 audio[0].load();
+                 audio[0].play();
+         }
+
+       },
+     });
+   </script>
+ </dom-module>

@@ -1,0 +1,400 @@
+
+
+
+
+
+<link rel="import" href="imports.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css">
+
+<dom-module id="fint-app">
+  <template>
+
+<paper-drawer-panel>
+  <paper-scroll-header-panel drawer>
+    <paper-material elevation="1">
+    <paper-toolbar  style="color:black; background-color: white; width:100%;">  <div id="search"><paper-input label="Search here.."value="{{keyword::input}}" >
+  <paper-icon-button suffix on-tap="ready" id="search" icon="search" alt="search" title="search">  </paper-icon-button>
+    </paper-input>
+
+  </div> </paper-toolbar>
+<paper-material>
+  <div id='greeting'></div>
+
+<paper-button on-tap="gplus" id="login">
+  Log in with Google.
+</paper-button>
+
+  <br>
+
+
+
+<template is="dom-if" if="{{loggedIn}}">
+<h4>  Hi {{userInfo.displayName}} </h4>
+</template>
+
+  <iron-selector attr-for-selected="page" selected="{{selected}}">
+
+     <div page="home"  class='menu '>Home/Search</div>
+     <div page="offline"  class='menu'>Offline</div>
+<template is="dom-if" if="{{loggedIn}}">
+          <div page="playlist"  class='menu '>Playlist</div>
+        </template>
+
+   </iron-selector>
+   <br>
+   <br><br>
+
+    <div> Search and enjoy...<br>More stuff coming soon.. <br> Made by Jeff Cheema
+<br>
+<a href="http://github.com/jeffcheema">
+  Github
+</a>
+    </div>
+
+  </paper-scroll-header-panel>
+  <paper-scroll-header-panel main>
+    <paper-material elevation="2">
+    <paper-toolbar  style="color:black; background-color: white; width:100%;" id="mainTB">
+ <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+        <h1>Pyke</h1> </paper-toolbar>
+  </paper-material>
+    <div>
+      <iron-pages  attr-for-selected="page" selected='{{selected}}'>
+        <section page="home">
+          <div class='main center' id="app" class="horizontal-section-container">
+
+
+              <iron-ajax auto
+                  url="https://www.googleapis.com/youtube/v3/search"
+                  params='{{params}}'
+                  handle-as="json"
+                  loading="{{loading}}"
+                  last-response="{{ajaxResponse}}"></iron-ajax>
+
+      <div id="playlist" class="classifier" class="center">
+        <br>
+        <br>
+        <br>
+                <template class="center "is="dom-repeat" items="[[ajaxResponse.items]]">
+
+                    <span id="list" class="center">
+
+
+<paper-card style="width:100%;"class="center" heading="[[item.snippet.title]] " alt="[[item.snippet.title]] " class="white">
+
+              <div class="card-actions">
+            <song-play vid="[[item.id.videoId]]">
+            </song-play>
+
+            <a  href="/api/redirect/audio/[[item.id.videoId]]">
+
+
+          <paper-button raised>Play</paper-button>
+
+          </a>
+          <br>
+          <template is="dom-if" if="{{loggedIn}}">
+          <add-playlist title="[[item.snippet.title]]" file="/api/redirect/audio/[[item.id.videoId]]">
+          </add-playlist>
+        </template>
+        <add-offline title="[[item.snippet.title]]" file="/api/redirect/audio/[[item.id.videoId]]">
+        </add-offline>
+              </div>
+            </span>
+            </paper-card>
+<br>
+<br>
+
+                </template>
+
+
+    </div>
+    <paper-material id="wobudong" elevation="1">
+  <paper-toolbar   style="color:black; background-color: white; width:100%;" id="footer">
+
+    <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg">
+  <source type="audio/mp3" src="">
+  Sorry, your browser does not support HTML5 audio.
+  </audio>
+  </paper-toolbar>
+  </paper-material>
+</section>
+<section page="playlist">
+  <br>
+  <br>
+  <br>
+  <template is="dom-if" if="{{loggedIn}}">
+
+    <user-playlist playlist="{{playlist}}">
+    </user-playlist>
+
+              </template>
+
+
+</section>
+<section page="offline">
+  <br>
+  <br>
+  <user-playlist id="offline" playlist="{{offlinePlaylist}}">
+  </user-playlist>
+</section>
+  </iron-pages>
+          </div>
+
+        </div>
+
+  </paper-scroll-header-panel>
+</paper-drawer-panel>
+
+
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'fint-app',
+
+      properties: {
+
+        keyword: {
+          type: String,
+          value: 'Dynamic Duo Jam',
+          observer: "ready",
+
+
+
+        },
+        SingleSongSrc:{
+          type:String,
+        },
+        SingleSongTitle:{
+          type:String,
+        },
+        database: {
+          type: Object,
+        },
+        loading: {
+         type: Boolean,
+
+       },
+       playlist:{
+         type:Object,
+       },
+       db:{
+         type:String,
+       },
+       user:{
+         type:Object,
+       },
+       token:{
+         type:Object,
+       },
+       params:{
+         type:Object,
+       },
+       selected:{
+         type:String,
+         value:"home",
+       },
+       offlinePlaylist:{
+         type:Object,
+       },
+       userInfo:{
+         type:Object,
+       },
+       loggedIn:{
+         type: Boolean,
+         value:false,
+
+       },
+
+     },
+     DB: function(query){
+       ajaxUrl = firebase.database().ref(query) + "/.json";
+     dbData = (function() { var result; $.ajax({ type:'GET', url:ajaxUrl, dataType:'json', async:false, success:function(data){ result = data; } }); return result; })();
+     return dbData;
+     },
+     refreshPL:function(){
+ this.playlist = this.DB('users/' + this.userInfo.uid +"/playlist/");
+     },
+      ready:function(){
+        if (localStorage.offline == null){
+        localStorage.setItem("offline", "[]");
+        }
+        if (localStorage.offline == undefined){
+        localStorage.setItem("offline", "[]");
+        }
+        this.offlinePlaylist = JSON.parse(localStorage.offline);
+
+//this.offlinePlaylist =[{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=bbTOhfJYQkc","title":"[MV] Dynamic Duo (다이나믹듀오) _ Jam (꿀잼)"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=DYz-LjtiVOc","title":"[MV] Dynamic Duo, DJ Premier(다이나믹듀오, 디제이 프리미어) _ AEAO"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=9nTLaNeud0s","title":"[MV] Dynamic Duo(다이나믹듀오), Primary(프라이머리), Boi B(보이비), Crush(크러쉬) _ highfiVe(하이파이브)"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=2lwNO6YTADA","title":"[MV] Dynamic Duo(다이나믹듀오) _ Hot Wings (날개뼈) (Feat. HyoLyn(효린) of Sistar(씨스타))"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=wLPgdkLMCKU","title":"[MV] Dynamic Duo(다이나믹 듀오), CHEN(첸) _ nosedive(기다렸다 가)"}];
+         this.db= (function() { var result; $.ajax({ type:'GET', url:"https://finty-c6733.firebaseio.com/.json?pretty-print=true", dataType:'json', async:false, success:function(data){ result = data; } }); return result; })();
+        //ETC....
+        var elem = document.getElementById("search");
+elem.onkeyup = function(e){
+    if(e.keyCode == 13){
+      var drawer = document.querySelector('paper-drawer-panel');
+      drawer.closeDrawer();
+
+    }
+}
+
+this.params = {"part":"snippet", "q":this.keyword, "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"};
+
+//remove function
+Element.prototype.remove = function() {
+this.parentElement.removeChild(this);
+}
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+for(var i = this.length - 1; i >= 0; i--) {
+if(this[i] && this[i].parentElement) {
+this[i].parentElement.removeChild(this[i]);
+}
+}
+}
+//Routes
+
+page('/search/:id', function(context){
+  var query = context.params.id;
+  console.log('Loading results for ', query);
+  this.keyword= query;
+    });
+    page('/:page', function(context){
+      var page = context.params.page;
+
+      this.selected=page;
+
+        });
+
+page();
+//AUTOPLAY INIT SETUP
+var rec = function() {
+  setTimeout(function() {
+    if ($('audio').length > 0) {
+    document.querySelector("fint-app").init();
+    } else
+        rec();
+  }, 10);
+}
+rec();
+//FIREBASE.........
+
+      },
+gplus:function(){
+  var provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+
+var app = document.querySelector('fint-app');
+var userInfo = app.DB('users/' + result.user.uid);
+    if (userInfo == null){
+    firebase.database().ref('users/' + result.user.uid).set({
+      playlist:"",
+       username: result.user.displayName,
+       email: result.user.email,
+       profile_picture : result.user.photoURL
+     });
+$("#wobudong").innerHTML= null;
+     $("#login").remove();
+     document.querySelector("fint-app").loggedIn = true;
+      document.querySelector("#app").loggedIn = true;
+ console.log("logging in..")
+     document.querySelector("fint-app").userInfo = result.user;
+     var ajaxUrl = firebase.database().ref('users/' + result.user.uid +"/playlist/") + "/.json";
+   document.querySelector("fint-app").playlist = app.DB('users/' + result.user.uid +"/playlist/");
+
+   } else{
+     console.log("user exists..")
+$("#wobudong").innerHTML= null;
+  $("#login").remove();
+     document.querySelector("fint-app").loggedIn = true;
+     document.querySelector("#app").loggedIn = true;
+ console.log("logging in..")
+     document.querySelector("fint-app").userInfo = result.user;
+     ajaxUrl = firebase.database().ref('users/' + result.user.uid +"/playlist/") + "/.json";
+   document.querySelector("fint-app").playlist = app.DB('users/' + result.user.uid +"/playlist/");
+
+   }
+
+
+
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+
+
+
+    // ...
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+  });
+
+},
+
+
+
+
+      init: function(){
+
+
+        var audio;
+        var playlist;
+        var tracks;
+        var current;
+
+
+            current = 0;
+            audio = $('audio');
+            playlist = $('#playlist');
+            tracks = playlist.find('#list a');
+            len = tracks.length - 1;
+            audio[0].volume = 1;
+            audio[0].play();
+            playlist.find('a').click(function(e){
+                e.preventDefault();
+                link = $(this);
+                current = link.parent().index();
+                run(link, audio[0]);
+            });
+            audio[0].addEventListener('ended',function(e){
+                current++;
+                if(current == len){
+                    current = 0;
+                    link = playlist.find('a')[0];
+                }else{
+                    link = playlist.find('a')[current];
+                }
+                run($(link),audio[0]);
+            });
+
+        function run(link, player){
+                player.src = link.attr('href');
+                par = link.parent();
+                par.addClass('active').siblings().removeClass('active');
+                audio[0].load();
+                audio[0].play();
+        }
+
+      },
+      search: function(){
+        var app = document.querySelector('#app');
+      app.params = {"part":"snippet", "q":this.keyword, "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"};
+
+
+      },
+
+
+
+
+    });
+  </script>
+</dom-module>
