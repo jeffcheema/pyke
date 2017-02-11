@@ -9,19 +9,20 @@ var exec = require('child_process').exec;
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-
+cors = require('cors')
 var app = express();
-
+app.use(cors());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(express.static('static'));
+
 var escapeShell = function(cmd) {
   return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
 };
 app.get('/api/:id', function (req, res) {
 
-  exec('youtube-dl -j https://youtube.com/watch?v='+escapeShell(req.params.id),
+  exec('youtube-dl -j '+req.params.id+';',
     function (error, stdout, stderr) {
       res.send(stdout);
       if (error !== null) {
@@ -31,7 +32,7 @@ app.get('/api/:id', function (req, res) {
 })
 app.get('/api/redirect/audio/:id', function (req, res) {
 
-  exec('youtube-dl -x -g https://youtube.com/watch?v='+escapeShell(req.params.id),
+  exec('youtube-dl -x -g '+req.params.id+';',
     function (error, stdout, stderr) {
 res.set('Location', stdout);
 res.redirect(stdout);
@@ -42,11 +43,11 @@ res.redirect(stdout);
   });
 })
 app.get('/api/redirect/video/:id', function (req, res) {
-  res.set('Location', stdout);
-res.redirect(stdout);
-  exec('youtube-dl -g https://youtube.com/watch?v='+escapeShell(req.params.id),
+
+  exec('youtube-dl -g '+req.params.id+';',
     function (error, stdout, stderr) {
 res.set('Location', stdout);
+res.redirect(stdout);
 
       if (error !== null) {
         console.log('exec error: ' + error);
