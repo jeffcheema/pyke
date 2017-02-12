@@ -96,6 +96,7 @@ console.log("initing user-playlist");
 
              });
              audio[0].addEventListener('ended',function(e){
+                 document.title = "Pyke";
                  current++;
                  if(current == len){
                      current = 0;
@@ -107,6 +108,7 @@ console.log("initing user-playlist");
              });
 
          function run(link, player){
+             document.title = link.attr('title');
                  player.src = link.attr('href');
                  par = link.parent();
                  par.addClass('active').siblings().removeClass('active');

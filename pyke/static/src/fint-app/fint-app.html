@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css">
 
 <dom-module id="fint-app">
+  <title>Pyke</title>
   <template>
 
 <paper-drawer-panel>
@@ -88,7 +89,7 @@
             <song-play vid="[[item.id.videoId]]">
             </song-play>
 
-            <a  href="/api/redirect/audio/[[item.id.videoId]]">
+            <a title="[[item.snippet.title]]" img="[[item.snippet.high.url]]" href="/api/redirect/audio/[[item.id.videoId]]">
 
 
           <paper-button raised>Play</paper-button>
@@ -161,7 +162,7 @@
 
         keyword: {
           type: String,
-          value: 'Dynamic Duo Jam',
+          value: 'Java life song',
           observer: "ready",
 
 
@@ -210,6 +211,10 @@
          value:false,
 
        },
+       title:{
+         type:String,
+         value:document.title,
+       }
 
      },
      DB: function(query){
@@ -229,7 +234,6 @@
         }
         this.offlinePlaylist = JSON.parse(localStorage.offline);
 
-//this.offlinePlaylist =[{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=bbTOhfJYQkc","title":"[MV] Dynamic Duo (다이나믹듀오) _ Jam (꿀잼)"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=DYz-LjtiVOc","title":"[MV] Dynamic Duo, DJ Premier(다이나믹듀오, 디제이 프리미어) _ AEAO"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=9nTLaNeud0s","title":"[MV] Dynamic Duo(다이나믹듀오), Primary(프라이머리), Boi B(보이비), Crush(크러쉬) _ highfiVe(하이파이브)"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=2lwNO6YTADA","title":"[MV] Dynamic Duo(다이나믹듀오) _ Hot Wings (날개뼈) (Feat. HyoLyn(효린) of Sistar(씨스타))"},{"file":"https://www.youtubeinmp3.com/fetch/?video=http://www.youtube.com/watch?v=wLPgdkLMCKU","title":"[MV] Dynamic Duo(다이나믹 듀오), CHEN(첸) _ nosedive(기다렸다 가)"}];
          this.db= (function() { var result; $.ajax({ type:'GET', url:"https://finty-c6733.firebaseio.com/.json?pretty-print=true", dataType:'json', async:false, success:function(data){ result = data; } }); return result; })();
         //ETC....
         var elem = document.getElementById("search");
@@ -362,10 +366,13 @@ $("#wobudong").innerHTML= null;
             playlist.find('a').click(function(e){
                 e.preventDefault();
                 link = $(this);
+
+
                 current = link.parent().index();
                 run(link, audio[0]);
             });
             audio[0].addEventListener('ended',function(e){
+                document.title = "Pyke";
                 current++;
                 if(current == len){
                     current = 0;
@@ -377,6 +384,7 @@ $("#wobudong").innerHTML= null;
             });
 
         function run(link, player){
+            document.title = link.attr('title');
                 player.src = link.attr('href');
                 par = link.parent();
                 par.addClass('active').siblings().removeClass('active');
