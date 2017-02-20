@@ -64,63 +64,7 @@
     <div>
       <iron-pages  attr-for-selected="page" selected='{{selected}}'>
         <section page="home">
-          <div class='main center' id="app" class="horizontal-section-container">
-
-
-              <iron-ajax auto
-                  url="https://www.googleapis.com/youtube/v3/search"
-                  params='{{params}}'
-                  handle-as="json"
-                  loading="{{loading}}"
-                  last-response="{{ajaxResponse}}"></iron-ajax>
-
-      <div id="playlist" class="classifier" class="center">
-        <br>
-        <br>
-        <br>
-                <template class="center "is="dom-repeat" items="[[ajaxResponse.items]]">
-
-                    <span id="list" class="center">
-
-
-<paper-card style="width:100%;"class="center" heading="[[item.snippet.title]] " alt="[[item.snippet.title]] " class="white">
-
-              <div class="card-actions">
-            <song-play vid="[[item.id.videoId]]">
-            </song-play>
-
-            <a title="[[item.snippet.title]]" img="[[item.snippet.high.url]]" href="/api/redirect/audio/[[item.id.videoId]]">
-
-
-          <paper-button raised>Play</paper-button>
-
-          </a>
-          <br>
-          <template is="dom-if" if="{{loggedIn}}">
-          <add-playlist title="[[item.snippet.title]]" file="/api/redirect/audio/[[item.id.videoId]]">
-          </add-playlist>
-        </template>
-        <add-offline title="[[item.snippet.title]]" file="/api/redirect/audio/[[item.id.videoId]]">
-        </add-offline>
-              </div>
-            </span>
-            </paper-card>
-<br>
-<br>
-
-                </template>
-
-
-    </div>
-    <paper-material id="wobudong" elevation="1">
-  <paper-toolbar   style="color:black; background-color: white; width:100%;" id="footer">
-
-    <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg">
-  <source type="audio/mp3" src="">
-  Sorry, your browser does not support HTML5 audio.
-  </audio>
-  </paper-toolbar>
-  </paper-material>
+        <app-search params="{{params}}"></app-search>
 </section>
 <section page="playlist">
   <br>
@@ -162,7 +106,7 @@
 
         keyword: {
           type: String,
-          value: 'Java life song',
+          value: 'BTS -Blood, Sweat, and Tears',
           observer: "ready",
 
 
@@ -177,10 +121,8 @@
         database: {
           type: Object,
         },
-        loading: {
-         type: Boolean,
 
-       },
+
        playlist:{
          type:Object,
        },
@@ -245,7 +187,7 @@ elem.onkeyup = function(e){
     }
 }
 
-this.params = {"part":"snippet", "q":this.keyword, "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"};
+this.params = {"part":"snippet", "q":this.keyword, "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video","videoCategoryId":"10"};
 
 //remove function
 Element.prototype.remove = function() {
@@ -289,7 +231,8 @@ rec();
 gplus:function(){
   var provider = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(provider).then(function(result) {
-
+    $("#login").remove();
+document.querySelector("app-search").loggedIn();
 var app = document.querySelector('fint-app');
 var userInfo = app.DB('users/' + result.user.uid);
     if (userInfo == null){

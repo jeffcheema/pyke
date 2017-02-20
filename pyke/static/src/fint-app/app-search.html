@@ -1,0 +1,69 @@
+<dom-module id="app-search">
+  <template>
+    <style>
+      :host {
+
+      }
+          </style>
+          <div class='main center' id="app" class="horizontal-section-container">
+
+
+              <iron-ajax auto
+                  url="https://www.googleapis.com/youtube/v3/search"
+                  params='{{params}}'
+                  handle-as="json"
+                  loading="{{loading}}"
+                  last-response="{{ajaxResponse}}"></iron-ajax>
+
+        <div id="playlist" class="classifier" class="center">
+        <br>
+        <br>
+        <br>
+                <template class="center "is="dom-repeat" id="repeat" items="[[ajaxResponse.items]]">
+
+                    <span id="list" class="center">
+
+
+
+            <song-card class="result" result style="width:100%" loggedIn="{{status}}" href="https://polymer.live/api/redirect/audio/[[item.id.videoId]]" by="[[item.snippt.channelTitle]]" img="[[item.snippet.thumbnails.high.url]]" title="[[item.snippet.title]]" ></song-card>
+
+        <br>
+        <br>
+        <br>
+
+                </template>
+
+
+        </div>
+        <paper-material id="wobudong" elevation="1">
+        <paper-toolbar   style="color:black; background-color: white; width:100%;" id="footer">
+
+        <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg">
+        <source type="audio/mp3" src="">
+        Sorry, your browser does not support HTML5 audio.
+        </audio>
+        </paper-toolbar>
+        </paper-material>
+
+  </template>
+  <script>
+     Polymer({
+       is: 'app-search',
+       properties:{
+         params:Object,
+         loading:Boolean,
+       },
+       ready:function(){
+
+
+       },
+       loggedIn:function(){
+         var l = document.querySelectorAll(".result");
+
+         for (var i = 0; i < l.length; i++) {
+             l[i].loggedIn = true;
+         }
+       },
+     });
+   </script>
+ </dom-module>

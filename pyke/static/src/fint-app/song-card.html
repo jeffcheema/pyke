@@ -2,53 +2,70 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <dom-module id="song-card">
   <template>
-  <style>
-         paper-card{
+  <style is="custom-style">
+    paper-card.rate { @apply(--layout-horizontal); }
 
-           width:20%;
-           height:100%;
-         }
-         paper-button{
-           width:100%;
-           height:100%;
-         }
-         .card-content{
-           top:-20px
-         }
-         paper-fab{
-           top:-20px;
-           left:10px;
-         }
- </style>
-
-                  <div class="card-actions">
-
-
-                <a  href="{{href}}">
+    .rate-content {
+      @apply(--layout-flex);
+      float: left;
+    }
+    .rate-header { @apply(--paper-font-headline); }
+    .rate-name { color: var(--paper-grey-600); margin: 10px 0; }
+    paper-icon-button.rate-icon {
+      --iron-icon-fill-color: white;
+      --iron-icon-stroke-color: var(--paper-grey-600);
+    }
+  </style>
+  <paper-card class="rate">
+    <div class="rate-content">
+      <div class="card-content">
+        <div class="rate-header">{{title}}</div>
+        <div class="rate-name">{{by}}</div>
 
 
-              <paper-fab icon="av:play" raised></paper-fab>
+      </div>
+      <div class="card-actions">
+          <a title="{{title}}" img="{{img}}" href="{{href}}">
+        <paper-button>
+  <iron-icon src="https://image.flaticon.com/icons/svg/263/263123.svg"></iron-icon>
+</paper-button>
 
-              </a>
-              <br>
+</a>
+<template is="dom-if" if="[[result]]">
+<template is="dom-if" if="[[loggedIn]]">
+<add-playlist title="{{title}}" file="{{href}}">
+</add-playlist>
+</template>
+<add-offline file="{{href}}" title="{{title}}"></add-offline>
+</template>
+      </div>
+    </div>
 
-                  </div>
-                </span>
-
-
-
+  </paper-card>
+  <br>
+  <br>
   </template>
+
   <script>
   Polymer({
       is: 'song-card',
       properties:{
         href:String,
         img:String,
+        href:String,
         title:String,
-        loggedIn:{
-          value:false,
-          type:Boolean,
+        result:{
+        type:Boolean,
+        reflectToAttribute:true,
+        notify:true,
         },
+        loggedIn:{
+          reflectToAttribute:true,
+          notify:true,
+          type:Boolean,
+
+        },
+        by:String,
       },
     });
 
