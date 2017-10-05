@@ -6,11 +6,12 @@ var request = require('request');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var exec = require('child_process').exec;
+var search = require('youtube-search');
 
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-cors = require('cors')
+cors = require('cors');
 var app = express();
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -50,13 +51,84 @@ request(stdout).pipe(res);
 })
 app.get('/api/video/:id', function (req, res) {
 
-  exec('youtube-dl -g '+req.params.id+';',
+  exec('youtube-dl -j '+req.params.id+';',
     function (error, stdout, stderr) {
-request(stdout).pipe(res);
-
+      var jsonData = stdout; 
+      var parsed = JSON.parse(stdout);
+      
+      res.send(parsed.formats[15].url);
       if (error !== null) {
         console.log('exec error: ' + error);
       }
   });
 })
+
+
+function getDATA(query){
+
+}
+app.get('/api/search/:id', function (req, res) {
+ global.data;
+  var opts = {
+  maxResults: 10,
+  key: 'AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI',
+  type:'video'
+};
+
+search(req.params.id, opts, function(err, results) {
+  if(err) return console.log(err);
+ 
+  global.data = results;
+  //console.log(global.data)
+  return results;
+});
+exec('youtube-dl -j '+global.data[0].link+';',
+    function (error, stdout, stderr) {
+
+      var parsed = JSON.parse(stdout);
+            console.log(parsed.fulltitle);
+            console.log(req.params.id);
+
+      var linkeu = parsed.formats[19].url;
+res.send(linkeu);
+
+      if (error !== null) {
+        console.log('exec error: ' + error);
+      }
+  });
+   // res.send(global.data[0].link);
+    //console.log(global.data);
+    
+  });
+app.get('/api/search/audio/:id', function (req, res) {
+ global.data;
+  var opts = {
+  maxResults: 10,
+  key: 'AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI',
+  type:'video'
+};
+
+search(req.params.id, opts, function(err, results) {
+  if(err) return console.log(err);
+ 
+  global.data = results;
+  //console.log(global.data)
+  return results;
+});
+exec('youtube-dl -j '+global.data[0].link+';',
+    function (error, stdout, stderr) {
+
+      var parsed = JSON.parse(stdout);
+            console.log(parsed.formats[15].url);
+      var linkeu = parsed.formats[15].url;
+res.send(linkeu);
+
+      if (error !== null) {
+        console.log('exec error: ' + error);
+      }
+  });
+   // res.send(global.data[0].link);
+    //console.log(global.data);
+    
+  });
 module.exports = app;
